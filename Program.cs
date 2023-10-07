@@ -1,13 +1,15 @@
 ﻿using Slayer;
+using System.Timers;
+
 Game game = new Game();
 game.Inicialaze();
+System.Timers.Timer timer = new System.Timers.Timer(2000);
+timer.Elapsed += TimerElapsed;
+timer.AutoReset = true;
+timer.Start();
 
 while (!game.End)
 {
-    game.EnemyMove();
-    game.Kill('o');
-    game.WinCheck();
-    game.PrintGameBoard();
     if (!game.End)
     {
         game.PlayerMove();
@@ -15,7 +17,6 @@ while (!game.End)
         game.WinCheck();
     }
 }
-game.PrintGameBoard();
 if (game.Player_won)
 {
     Console.WriteLine("Gratulacje użytkowniku powietrza");
@@ -23,4 +24,11 @@ if (game.Player_won)
 else
 {
     Console.WriteLine("wow...");
+    game.PrintGameBoard();
 }
+void TimerElapsed(object sender, ElapsedEventArgs e)
+{
+    game.EnemyMove();
+    if (game.Kill('o') || game.End == true)
+    timer.Stop();
+} 
