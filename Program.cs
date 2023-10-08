@@ -3,6 +3,7 @@ using System.Timers;
 
 Game game = new Game();
 game.Inicialaze();
+CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 System.Timers.Timer timer = new System.Timers.Timer(2000);
 timer.Elapsed += TimerElapsed;
 timer.AutoReset = true;
@@ -13,7 +14,18 @@ while (!game.End)
     if (!game.End)
     {
         game.PlayerMove();
-        game.Kill('x');
+        if (game.Kill('x'))
+        {
+            cancellationTokenSource.Cancel();
+            while (game.BonusMoves != 0)
+            {
+                game.BonusMoves--;
+                game.PlayerMove();
+                game.Kill('x');
+                game.WinCheck();
+            }
+            cancellationTokenSource = new CancellationTokenSource();
+        }
         game.WinCheck();
     }
 }
@@ -23,12 +35,19 @@ if (game.Player_won)
 }
 else
 {
-    Console.WriteLine("wow...");
     game.PrintGameBoard();
+    Console.WriteLine("wow...");
 }
 void TimerElapsed(object sender, ElapsedEventArgs e)
 {
-    game.EnemyMove();
-    if (game.Kill('o') || game.End == true)
-    timer.Stop();
+    if (!cancellationTokenSource.Token.IsCancellationRequested)
+    {
+        game.EnemyMove();
+        if (game.Kill('o') || game.End == true)
+        {
+            timer.Stop();
+            game.PrintGameBoard();
+            Console.WriteLine("wow...");
+        }
+    }
 } 

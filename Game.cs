@@ -10,6 +10,7 @@ namespace Slayer
         public string[,] GameBoard = new string[10, 10];
         public bool End = false;
         public bool Player_won;
+        public int BonusMoves = 0;
         public Game()
         {
             for (int i = 0; i < GameBoard.GetLength(0); i++)
@@ -65,8 +66,17 @@ namespace Slayer
             GameBoard[EnemyPosition[0], EnemyPosition[1]] = "o";
             GameBoard[Enemy2Position[0], Enemy2Position[1]] = "o";
             Vector2 newEnemyPosition = calculateDirection(PlayerPosition[1], PlayerPosition[0], EnemyPosition[1], EnemyPosition[0]);
-            EnemyPosition[0] = (int)newEnemyPosition.Y;
-            EnemyPosition[1] = (int)newEnemyPosition.X;
+            Vector2 newEnemy2Position = calculateDirection(PlayerPosition[1], PlayerPosition[0], Enemy2Position[1], Enemy2Position[0]);
+            if (newEnemyPosition.X != Enemy2Position[1] || newEnemyPosition.Y != Enemy2Position[0])
+            {
+                EnemyPosition[0] = (int)newEnemyPosition.Y;
+                EnemyPosition[1] = (int)newEnemyPosition.X;
+            }
+            if (newEnemy2Position.X != EnemyPosition[1] || newEnemy2Position.Y != EnemyPosition[0])
+            {
+                Enemy2Position[0] = (int)newEnemy2Position.Y;
+                Enemy2Position[1] = (int)newEnemy2Position.X;
+            }
             PrintGameBoard();
         }
         public void PlayerMove()
@@ -181,19 +191,29 @@ namespace Slayer
             {
                 if (!End)
                 {
-                    if (PlayerPosition[0] == EnemyPosition[0] && PlayerPosition[1] == EnemyPosition[1])
+                    if ((PlayerPosition[0] == EnemyPosition[0] && PlayerPosition[1] == EnemyPosition[1]) || (PlayerPosition[0] == Enemy2Position[0] && PlayerPosition[1] == Enemy2Position[1]))
                     {
-                        GameBoard[EnemyPosition[0], EnemyPosition[1]] = "o";
-                        EnemyPosition[0] = 0;
-                        EnemyPosition[1] = r.Next(0, 10);
+                        if (PlayerPosition[0] == EnemyPosition[0] && PlayerPosition[1] == EnemyPosition[1])
+                        {
+                            GameBoard[EnemyPosition[0], EnemyPosition[1]] = "o";
+                            EnemyPosition[0] = 0;
+                            EnemyPosition[1] = r.Next(0, 10);
+                        }
+                        if (PlayerPosition[0] == Enemy2Position[0] && PlayerPosition[1] == Enemy2Position[1])
+                        {
+                            GameBoard[Enemy2Position[0], Enemy2Position[1]] = "o";
+                            Enemy2Position[0] = 0;
+                            Enemy2Position[1] = r.Next(0, 10);
+                        }
                         PrintGameBoard();
+                        BonusMoves += 2;
                         return true;
                     }
                 }
             }
             if (o == 'o')
             {
-                if (PlayerPosition[0] == EnemyPosition[0] && PlayerPosition[1] == EnemyPosition[1])
+                if ((PlayerPosition[0] == EnemyPosition[0] && PlayerPosition[1] == EnemyPosition[1]) || (PlayerPosition[0] == Enemy2Position[0] && PlayerPosition[1] == Enemy2Position[1]))
                 {
                     PlayerPosition[0] = -1;
                     PlayerPosition[1] = -1;
